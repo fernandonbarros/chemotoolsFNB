@@ -201,7 +201,7 @@ class PLSRegression(_SklearnPLSRegression):
 
         return self
 
-    def transform(self, X: np.ndarray, y: np.ndarray | None = None, copy: bool = True):
+    def transform(self, X: np.ndarray, y: np.ndarray | None = None, copy: bool = True, return_y: bool = False):
         """Apply dimensionality reduction to X.
 
         Projects X onto the latent components found during fitting.
@@ -220,7 +220,32 @@ class PLSRegression(_SklearnPLSRegression):
         X_scores : ndarray of shape (n_samples, n_components)
             X transformed into the latent space (X-scores).
         """
-        return super().transform(X, y=y, copy=copy)
+        if return_y:
+            return super().transform(X, y=y, copy=copy)
+        else:
+            return super().transform(X, copy=copy)
+
+    def get_feature_names_out(self):
+        """Return the feature names for the transformed data.
+        
+        This returns a list [LV1, LV2, ..., LV{n_components}]
+        
+        This functions is used when the sklearn
+        .set_output("pandas")/set_config(transform_output="pandas")
+        feature is used.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        list[str]
+            - Latent variable names
+        """
+
+        output_features = [f"LV{i+1}" for i in range(self.n_components)]
+        return output_features
 
     def _calculate_explained_variance_deflation(
         self, X, y
